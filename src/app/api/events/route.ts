@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category") || "";
     const id = searchParams.get("id");
 
-    // If ID is provided, return single event
     if (id) {
       const event = mockEvents.find((event) => event.id === id);
       if (!event) {
@@ -30,14 +29,12 @@ export async function GET(request: NextRequest) {
 
     let filteredEvents = mockEvents;
 
-    // Filter by search term (title)
     if (search) {
       filteredEvents = filteredEvents.filter((event) =>
         event.title.toLowerCase().includes(search)
       );
     }
 
-    // Filter by category
     if (category && category !== "All") {
       filteredEvents = filteredEvents.filter(
         (event) => event.category === category

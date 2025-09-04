@@ -14,7 +14,6 @@ const Header = () => {
     { href: "/my-events", label: "My Events" },
   ];
 
-  // Responsive drawer state
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -31,7 +30,6 @@ const Header = () => {
           />
         </Link>
       </div>
-      {/* Desktop Menu */}
       <nav className="hidden md:flex gap-8 h-full items-center">
         {navLinks.map((link) => (
           <Link
@@ -47,7 +45,6 @@ const Header = () => {
           </Link>
         ))}
       </nav>
-      {/* Mobile Menu Icon */}
       <div className="md:hidden flex items-center">
         <Button
           type="text"

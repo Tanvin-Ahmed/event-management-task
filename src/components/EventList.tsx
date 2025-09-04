@@ -9,8 +9,7 @@ import CategoryFilter from "./CategoryFilter";
 
 export default function EventList() {
   const [events, setEvents] = useState<Event[]>([]);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [searching, setSearching] = useState(false);
+  const [searching, setSearching] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -18,10 +17,7 @@ export default function EventList() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        // Only show searching indicator if it's not the initial load
-        if (!initialLoading) {
-          setSearching(true);
-        }
+        setSearching(true);
 
         const params = new URLSearchParams();
         if (searchTerm) params.append("search", searchTerm);
@@ -42,18 +38,16 @@ export default function EventList() {
       } catch {
         setError("An error occurred while fetching events");
       } finally {
-        setInitialLoading(false);
         setSearching(false);
       }
     };
 
-    // Debounce the API call
     const timeoutId = setTimeout(() => {
       fetchEvents();
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm, selectedCategory]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchTerm, selectedCategory]);
 
   if (error) {
     return (
@@ -71,7 +65,6 @@ export default function EventList() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">
           Upcoming Events
@@ -81,7 +74,6 @@ export default function EventList() {
         </p>
       </div>
 
-      {/* Search and Filter Controls */}
       <div className="mb-8 space-y-4 lg:space-y-0 lg:flex lg:items-center lg:justify-between lg:gap-6">
         <div className="flex-1 max-w-md">
           <SearchBar
@@ -98,10 +90,9 @@ export default function EventList() {
         </div>
       </div>
 
-      {/* Events Count */}
       <div className="mb-6">
         <p className="text-gray-600">
-          {searching || initialLoading
+          {searching
             ? "Finding..."
             : events.length === 0
             ? "No events found"
@@ -109,8 +100,7 @@ export default function EventList() {
         </p>
       </div>
 
-      {/* Events Grid */}
-      {searching || initialLoading ? (
+      {searching ? (
         <div className="min-h-[400px] flex justify-center items-center">
           <div className="flex flex-col items-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>

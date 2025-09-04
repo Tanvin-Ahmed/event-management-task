@@ -54,7 +54,6 @@ export default async function EventDetailsPage({
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        {/* Back Button */}
         <Link
           href="/"
           className="mb-6 cursor-pointer flex items-center text-blue-600 hover:text-blue-800 transition-colors w-fit"
@@ -63,10 +62,8 @@ export default async function EventDetailsPage({
           Back to Events
         </Link>
 
-        {/* Event Details Card */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="p-8">
-            {/* Header */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
               <h1 className="text-3xl font-bold text-gray-900">
                 {event.title}
@@ -80,7 +77,6 @@ export default async function EventDetailsPage({
               </span>
             </div>
 
-            {/* Event Info Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div className="flex items-center text-gray-600">
                 <span className="text-2xl mr-3">📅</span>
@@ -99,7 +95,6 @@ export default async function EventDetailsPage({
               </div>
             </div>
 
-            {/* Description */}
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
                 Description

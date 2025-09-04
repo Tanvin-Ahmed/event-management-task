@@ -1,0 +1,264 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { Form, Input, DatePicker, Select, Button, Card, message } from "antd";
+import { ArrowLeftOutlined, SaveOutlined } from "@ant-design/icons";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Event } from "@/types";
+import { useEvents } from "@/context/EventsContext";
+import dayjs from "dayjs";
+
+const { TextArea } = Input;
+const { Option } = Select;
+
+export default function CreateEventPage() {
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [eventId, setEventId] = useState<string | null>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { getEventById, addEvent, updateEvent } = useEvents();
+
+  const userId = "user123";
+
+  const loadEventForEdit = useCallback(
+    (id: string) => {
+      try {
+        const eventToEdit = getEventById(id);
+
+        if (eventToEdit && eventToEdit.userId === userId) {
+          form.setFieldsValue({
+            title: eventToEdit.title,
+            description: eventToEdit.description,
+            date: dayjs(eventToEdit.date),
+            location: eventToEdit.location,
+            category: eventToEdit.category,
+          });
+        } else {
+          message.error(
+            "Event not found or you don't have permission to edit it"
+          );
+          router.push("/my-events");
+        }
+      } catch (error) {
+        console.error("Error loading event for edit:", error);
+        message.error("Failed to load event data");
+        router.push("/my-events");
+      }
+    },
+    [form, router, userId, getEventById]
+  );
+
+  useEffect(() => {
+    const editId = searchParams.get("edit");
+    if (editId) {
+      setIsEditMode(true);
+      setEventId(editId);
+      loadEventForEdit(editId);
+    }
+  }, [searchParams, loadEventForEdit]);
+
+  const handleSubmit = async (values: any) => {
+    setLoading(true);
+    try {
+      if (isEditMode && eventId) {
+        const updatedEvent: Event = {
+          id: eventId,
+          title: values.title,
+          description: values.description,
+          date: values.date.format("YYYY-MM-DD"),
+          location: values.location,
+          category: values.category,
+          userId: userId,
+        };
+
+        updateEvent(updatedEvent);
+        message.success("Event updated successfully!");
+      } else {
+        const newEvent: Event = {
+          id: Date.now().toString(),
+          title: values.title,
+          description: values.description,
+          date: values.date.format("YYYY-MM-DD"),
+          location: values.location,
+          category: values.category,
+          userId: userId,
+        };
+
+        addEvent(newEvent);
+        message.success("Event created successfully!");
+      }
+
+      router.push("/my-events");
+    } catch (error) {
+      console.error("Error saving event:", error);
+      message.error("Failed to save event. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    router.push("/my-events");
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-2xl mx-auto">
+        <div className="flex items-center gap-4 mb-8">
+          <Button
+            type="text"
+            icon={<ArrowLeftOutlined />}
+            onClick={handleCancel}
+            className="text-gray-600 hover:text-gray-800"
+          >
+            Back to My Events
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {isEditMode ? "Edit Event" : "Create New Event"}
+            </h1>
+            <p className="text-gray-600 mt-1">
+              {isEditMode
+                ? "Update your event details"
+                : "Fill in the details to create a new event"}
+            </p>
+          </div>
+        </div>
+
+        <Card className="shadow-lg">
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            size="large"
+            requiredMark={false}
+          >
+            <Form.Item
+              name="title"
+              label="Event Title"
+              rules={[
+                { required: true, message: "Please enter the event title" },
+                { min: 3, message: "Title must be at least 3 characters long" },
+                { max: 100, message: "Title cannot exceed 100 characters" },
+              ]}
+            >
+              <Input placeholder="Enter event title" className="rounded-md" />
+            </Form.Item>
+
+            <Form.Item
+              name="description"
+              label="Description"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter the event description",
+                },
+                {
+                  min: 10,
+                  message: "Description must be at least 10 characters long",
+                },
+                {
+                  max: 500,
+                  message: "Description cannot exceed 500 characters",
+                },
+              ]}
+            >
+              <TextArea
+                placeholder="Describe your event in detail"
+                rows={4}
+                className="rounded-md"
+                showCount
+                maxLength={500}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="date"
+              label="Event Date"
+              rules={[
+                { required: true, message: "Please select the event date" },
+                {
+                  validator: (_, value) => {
+                    if (value && value.isBefore(dayjs(), "day")) {
+                      return Promise.reject(
+                        new Error("Event date cannot be in the past")
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <DatePicker
+                placeholder="Select event date"
+                className="w-full rounded-md"
+                format="YYYY-MM-DD"
+                disabledDate={(current) =>
+                  current && current < dayjs().startOf("day")
+                }
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="location"
+              label="Location"
+              rules={[
+                { required: true, message: "Please enter the event location" },
+                {
+                  min: 3,
+                  message: "Location must be at least 3 characters long",
+                },
+                { max: 100, message: "Location cannot exceed 100 characters" },
+              ]}
+            >
+              <Input
+                placeholder="Enter event location"
+                className="rounded-md"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="category"
+              label="Category"
+              rules={[
+                { required: true, message: "Please select the event category" },
+              ]}
+            >
+              <Select
+                placeholder="Select event category"
+                className="rounded-md"
+              >
+                <Option value="Conference">Conference</Option>
+                <Option value="Workshop">Workshop</Option>
+                <Option value="Meetup">Meetup</Option>
+              </Select>
+            </Form.Item>
+
+            <div className="flex gap-4 pt-4">
+              <Button
+                type="default"
+                size="large"
+                onClick={handleCancel}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                size="large"
+                htmlType="submit"
+                loading={loading}
+                icon={<SaveOutlined />}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700"
+              >
+                {isEditMode ? "Update Event" : "Create Event"}
+              </Button>
+            </div>
+          </Form>
+        </Card>
+      </div>
+    </div>
+  );
+}

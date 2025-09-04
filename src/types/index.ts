@@ -5,6 +5,7 @@ export interface Event {
   date: string;
   location: string;
   category: "Conference" | "Workshop" | "Meetup";
+  userId?: string;
 }
 
 export interface ApiResponse<T> {

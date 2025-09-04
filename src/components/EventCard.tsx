@@ -22,8 +22,8 @@ export default function EventCard({ event }: EventCardProps) {
   };
 
   return (
-    <Link href={`/events/${event.id}`}>
-      <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6 border border-gray-200 cursor-pointer">
+    <Link href={`/events/${event.id}`} className="h-full">
+      <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6 border border-gray-200 cursor-pointer h-full flex flex-col">
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">
             {event.title}
@@ -31,7 +31,7 @@ export default function EventCard({ event }: EventCardProps) {
           <span
             className={`px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
               event.category
-            )}`}
+            )} flex-shrink-0`}
           >
             {event.category}
           </span>
@@ -39,7 +39,7 @@ export default function EventCard({ event }: EventCardProps) {
 
         <p className="text-gray-600 mb-4 line-clamp-2">{event.description}</p>
 
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-auto">
           <div className="flex items-center text-gray-500 text-sm">
             📅&nbsp;{formatDate(event.date)}
           </div>
