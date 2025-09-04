@@ -1,96 +1,67 @@
-"use client";
-
 import { Event } from "@/types";
 import { formatDate } from "@/utils/formatDate";
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Button } from "antd";
+import axios from "axios";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
-export default function EventDetailsPage() {
-  const params = useParams();
-  const router = useRouter();
-  const [event, setEvent] = useState<Event | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface EventDetailsPageProps {
+  params: Promise<{ id: string }>;
+}
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "Conference":
-        return "bg-blue-100 text-blue-800";
-      case "Workshop":
-        return "bg-green-100 text-green-800";
-      case "Meetup":
-        return "bg-purple-100 text-purple-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+async function fetchEventById(id: string): Promise<Event | null> {
+  try {
+    const baseUrl =
+      process.env.NODE_ENV === "production"
+        ? `${process.env.VERCEL_URL}`
+        : "http://localhost:3000";
+
+    const response = await axios.get(`${baseUrl}/api/events/${id}`);
+
+    if (response.data.success) {
+      return response.data.data;
     }
-  };
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        const response = await fetch(`/api/events?id=${params.id}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch event");
-        }
-        const data = await response.json();
-        if (data.success && data.data) {
-          setEvent(data.data);
-        } else {
-          setError(data.message || "Event not found");
-        }
-      } catch (err) {
-        setError("Failed to load event details");
-        console.error("Error fetching event:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (params.id) {
-      fetchEvent();
-    }
-  }, [params.id]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading event details...</p>
-        </div>
-      </div>
-    );
+    return null;
+  } catch (error) {
+    console.error("Error fetching event:", error);
+    return null;
   }
+}
 
-  if (error || !event) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-500 text-6xl mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Event Not Found
-          </h1>
-          <p className="text-gray-600 mb-6">
-            {error || "The event you're looking for doesn't exist."}
-          </p>
-          <Button onClick={() => router.back()}>Go Back</Button>
-        </div>
-      </div>
-    );
+const getCategoryColor = (category: string) => {
+  switch (category) {
+    case "Conference":
+      return "bg-blue-100 text-blue-800";
+    case "Workshop":
+      return "bg-green-100 text-green-800";
+    case "Meetup":
+      return "bg-purple-100 text-purple-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
+export default async function EventDetailsPage({
+  params,
+}: EventDetailsPageProps) {
+  const { id } = await params;
+  const event = await fetchEventById(id);
+
+  if (!event) {
+    notFound();
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}
-        <button
-          onClick={() => router.back()}
-          className="mb-6 cursor-pointer flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+        <Link
+          href="/"
+          className="mb-6 cursor-pointer flex items-center text-blue-600 hover:text-blue-800 transition-colors w-fit"
         >
           <span className="mr-2">←</span>
           Back to Events
-        </button>
+        </Link>
 
         {/* Event Details Card */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
