@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Form, Input, DatePicker, Select, Button, Card, message } from "antd";
-import { ArrowLeftOutlined, SaveOutlined } from "@ant-design/icons";
+import { SaveOutlined } from "@ant-design/icons";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Event } from "@/types";
 import { useEvents } from "@/context/EventsContext";
 import dayjs from "dayjs";
+import Link from "next/link";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -106,15 +107,14 @@ export default function CreateEventPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-2xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            type="text"
-            icon={<ArrowLeftOutlined />}
-            onClick={handleCancel}
-            className="text-gray-600 hover:text-gray-800"
-          >
-            Back to My Events
-          </Button>
+        <Link
+          href="/"
+          className="mb-6 cursor-pointer flex items-center text-blue-600 hover:text-blue-800 transition-colors w-fit"
+        >
+          <span className="mr-2">←</span>
+          Back to Events
+        </Link>
+        <div className="flex flex-col items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
               {isEditMode ? "Edit Event" : "Create New Event"}
@@ -128,13 +128,7 @@ export default function CreateEventPage() {
         </div>
 
         <Card className="shadow-lg">
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-            size="large"
-            requiredMark={false}
-          >
+          <Form form={form} layout="vertical" onFinish={handleSubmit}>
             <Form.Item
               name="title"
               label="Event Title"
@@ -142,6 +136,7 @@ export default function CreateEventPage() {
                 { required: true, message: "Please enter the event title" },
                 { min: 3, message: "Title must be at least 3 characters long" },
                 { max: 100, message: "Title cannot exceed 100 characters" },
+                { whitespace: true },
               ]}
             >
               <Input placeholder="Enter event title" className="rounded-md" />
@@ -163,6 +158,7 @@ export default function CreateEventPage() {
                   max: 500,
                   message: "Description cannot exceed 500 characters",
                 },
+                { whitespace: true },
               ]}
             >
               <TextArea
@@ -211,6 +207,7 @@ export default function CreateEventPage() {
                   message: "Location must be at least 3 characters long",
                 },
                 { max: 100, message: "Location cannot exceed 100 characters" },
+                { whitespace: true },
               ]}
             >
               <Input
