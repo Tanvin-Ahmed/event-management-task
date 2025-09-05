@@ -21,13 +21,8 @@ export default function RsvpButton({
   className = "",
 }: RsvpButtonProps) {
   const { rsvpToEvent, loading, error } = useRsvp();
-  const [hasRsvped, setHasRsvped] = useState(false);
+  const [hasRsvped, setHasRsvped] = useState(event.attendees.includes(userId));
   const [currentEvent, setCurrentEvent] = useState(event);
-
-  useEffect(() => {
-    setHasRsvped(event.attendees.includes(userId));
-    setCurrentEvent(event);
-  }, [event, userId]);
 
   useEffect(() => {
     if (error) {

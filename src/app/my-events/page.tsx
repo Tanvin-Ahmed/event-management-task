@@ -133,6 +133,7 @@ function MyEventsContent() {
                 key={event.id}
                 event={event}
                 showActions={true}
+                showDetails={true}
                 onEdit={handleEditEvent}
                 onDelete={handleDeleteEvent}
               />

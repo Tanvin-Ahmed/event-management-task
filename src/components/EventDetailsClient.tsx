@@ -41,7 +41,7 @@ export default function EventDetailsClient({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
+      <div className="container mx-auto px-4 py-6">
         {/* Back Button */}
         <Link
           href="/"
@@ -146,6 +146,7 @@ export default function EventDetailsClient({
                 </div>
                 <div className="flex-shrink-0">
                   <RsvpButton
+                    key={`rsvp-details-${event.id}-${event.attendeeCount}`}
                     event={event}
                     userId={userId}
                     onRsvpUpdate={handleRsvpUpdate}

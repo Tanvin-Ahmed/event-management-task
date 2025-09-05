@@ -18,6 +18,7 @@ interface EventCardProps {
   event: Event;
   showActions?: boolean;
   showRsvp?: boolean;
+  showDetails?: boolean;
   userId?: string;
   onEdit?: (eventId: string) => void;
   onDelete?: (eventId: string) => void;
@@ -28,6 +29,7 @@ export default function EventCard({
   event,
   showActions = false,
   showRsvp = false,
+  showDetails = false,
   userId = "current-user",
   onEdit,
   onDelete,
@@ -50,7 +52,6 @@ export default function EventCard({
         return "bg-gray-100 text-gray-800";
     }
   };
-
   const CardContent = () => (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6 border border-gray-200 h-full flex flex-col">
       <div className="flex justify-between items-start mb-3">
@@ -65,10 +66,6 @@ export default function EventCard({
           {event.category}
         </span>
       </div>
-
-      <p className="text-gray-600 mb-4 line-clamp-2 flex-grow">
-        {event.description}
-      </p>
 
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-auto">
         <div className="flex items-center text-gray-500 text-sm">
@@ -141,6 +138,17 @@ export default function EventCard({
           >
             Delete
           </Button>
+          {showDetails && (
+            <Button
+              type="default"
+              size="small"
+              icon={<EyeOutlined />}
+              onClick={handleViewDetails}
+              className="flex-1 min-w-0"
+            >
+              Details
+            </Button>
+          )}
         </div>
       )}
     </div>
