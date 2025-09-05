@@ -2,6 +2,10 @@
 
 A modern event management application built with Next.js 15, TypeScript, and Tailwind CSS. This application allows users to browse, create, and RSVP to events with a clean and responsive interface.
 
+> **Note:**
+>
+> In the requirements document (Module 4), it was suggested to save created events in local state or local storage. However, I chose to store created events in the backend `eventsData` array instead. This approach is more efficient and enables features such as server-side rendering (SSR) for the event details page. By maintaining events in the backend, the application ensures better scalability, data consistency, and a more robust user experience.
+
 ## 🚀 Features
 
 - **Event Listing**: Browse all available events with search and category filtering
@@ -168,8 +172,10 @@ event-management/
 The application includes the following API routes:
 
 - `GET /api/events` - Fetch all events
+- `GET /api/my-events` - Fetch all events of a user
 - `GET /api/events/[id]` - Fetch specific event by ID
 - `PUT /api/events/[id]/rsvp` - RSVP to event or cancel RSVP
+- `DELETE /api/events/[id]` - Delete specific event by ID
 
 ---
 
