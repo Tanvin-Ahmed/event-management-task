@@ -15,12 +15,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     if (!loading && !isAuthenticated()) {
-      // Redirect to sign-in page with the current path as redirect parameter
       router.push(`/sign-in?redirect=${encodeURIComponent(pathname)}`);
     }
   }, [isAuthenticated, loading, router, pathname]);
 
-  // Show loading spinner while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -32,7 +30,6 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  // If not authenticated, don't render children (redirect will happen in useEffect)
   if (!isAuthenticated()) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">

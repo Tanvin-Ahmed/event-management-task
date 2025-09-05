@@ -9,6 +9,7 @@ export interface Event {
   attendeeCount: number;
   maxAttendees?: number;
   attendees: string[];
+  createdAt: string;
 }
 
 export interface RsvpRequest {

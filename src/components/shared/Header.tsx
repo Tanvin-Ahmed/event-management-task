@@ -75,7 +75,6 @@ const Header = () => {
       </nav>
 
       <div className="flex items-center gap-4">
-        {/* Desktop User Menu */}
         <div className="hidden md:flex items-center">
           {user ? (
             <Dropdown
@@ -97,7 +96,6 @@ const Header = () => {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center">
           <Button
             type="text"
@@ -107,7 +105,6 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Drawer */}
       <Drawer
         title="Menu"
         placement="right"
@@ -130,7 +127,6 @@ const Header = () => {
             </Link>
           ))}
 
-          {/* Mobile User Section */}
           <div className="mt-6 pt-4 border-t border-gray-200">
             {user ? (
               <div className="space-y-3">

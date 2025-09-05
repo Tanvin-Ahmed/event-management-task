@@ -3,24 +3,63 @@
 import { Button, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
-import { useEvents } from "@/context/EventsContext";
 import { useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/shared/ProtectedRoute";
 import EventCard from "@/components/EventCard";
+import { useEffect, useState, useCallback } from "react";
+import { Event, ApiResponse } from "@/types";
+import axios from "axios";
 
 function MyEventsContent() {
   const router = useRouter();
-  const { loading, getUserEvents, deleteEvent } = useEvents();
   const { user } = useAuth();
+  const [myEvents, setMyEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const userId = user?.id;
 
-  const myEvents = userId ? getUserEvents(userId) : [];
+  const fetchMyEvents = useCallback(async () => {
+    if (!userId) return;
 
-  const handleDeleteEvent = (eventId: string) => {
+    setLoading(true);
     try {
-      deleteEvent(eventId);
-      message.success("Event deleted successfully!");
+      const response = await axios.get<ApiResponse<Event[]>>(
+        `/api/my-events?userId=${userId}`
+      );
+      const result = response.data;
+
+      if (result.success) {
+        setMyEvents(result.data);
+      } else {
+        message.error(result.message);
+      }
+    } catch (error) {
+      console.error("Error fetching my events:", error);
+      message.error("Failed to fetch events");
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
+      fetchMyEvents();
+    }
+  }, [userId, fetchMyEvents]);
+
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      const response = await axios.delete<ApiResponse<Event>>(
+        `/api/events/${eventId}`
+      );
+      const result = response.data;
+
+      if (result.success) {
+        setMyEvents((prev) => prev.filter((event) => event.id !== eventId));
+        message.success("Event deleted successfully!");
+      } else {
+        message.error(result.message);
+      }
     } catch (error) {
       console.error("Error deleting event:", error);
       message.error("Failed to delete event");

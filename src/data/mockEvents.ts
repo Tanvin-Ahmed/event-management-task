@@ -12,6 +12,7 @@ export const mockEvents: Event[] = [
     attendeeCount: 45,
     maxAttendees: 200,
     attendees: ["user1", "user2", "user3"],
+    createdAt: "2025-09-01T10:00:00.000Z",
   },
   {
     id: "2",
@@ -24,6 +25,7 @@ export const mockEvents: Event[] = [
     attendeeCount: 12,
     maxAttendees: 30,
     attendees: ["user4", "user5"],
+    createdAt: "2025-09-01T11:00:00.000Z",
   },
   {
     id: "3",
@@ -36,6 +38,7 @@ export const mockEvents: Event[] = [
     attendeeCount: 8,
     maxAttendees: 25,
     attendees: ["user1", "user6"],
+    createdAt: "2025-09-01T12:00:00.000Z",
   },
   {
     id: "4",
@@ -48,6 +51,7 @@ export const mockEvents: Event[] = [
     attendeeCount: 25,
     maxAttendees: 50,
     attendees: ["user7", "user8", "user9"],
+    createdAt: "2025-09-02T09:00:00.000Z",
   },
   {
     id: "5",
@@ -60,6 +64,7 @@ export const mockEvents: Event[] = [
     attendeeCount: 89,
     maxAttendees: 300,
     attendees: ["user1", "user10", "user11"],
+    createdAt: "2025-09-02T10:00:00.000Z",
   },
   {
     id: "6",
@@ -72,6 +77,7 @@ export const mockEvents: Event[] = [
     attendeeCount: 15,
     maxAttendees: 40,
     attendees: ["user12", "user13"],
+    createdAt: "2025-09-02T11:00:00.000Z",
   },
   {
     id: "7",
@@ -84,6 +90,7 @@ export const mockEvents: Event[] = [
     attendeeCount: 18,
     maxAttendees: 35,
     attendees: ["user14", "user15", "user16"],
+    createdAt: "2025-09-03T09:00:00.000Z",
   },
   {
     id: "8",
@@ -96,5 +103,6 @@ export const mockEvents: Event[] = [
     attendeeCount: 67,
     maxAttendees: 150,
     attendees: ["user17", "user18", "user19", "user20"],
+    createdAt: "2025-09-03T10:00:00.000Z",
   },
 ];

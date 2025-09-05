@@ -43,12 +43,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
 
-    // Simulate API call delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     if (email && password) {
+      const userId = `user_${email
+        .replace(/[^a-zA-Z0-9]/g, "_")
+        .toLowerCase()}`;
       const userData: User = {
-        id: `user_${Date.now()}`,
+        id: userId,
         email,
         name: email.split("@")[0],
       };

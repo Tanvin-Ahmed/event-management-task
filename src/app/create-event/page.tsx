@@ -13,12 +13,12 @@ import {
 } from "antd";
 import { SaveOutlined } from "@ant-design/icons";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Event } from "@/types";
-import { useEvents } from "@/context/EventsContext";
+import { Event, ApiResponse } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/shared/ProtectedRoute";
 import dayjs from "dayjs";
 import Link from "next/link";
+import axios from "axios";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -30,29 +30,37 @@ function CreateEventContent() {
   const [eventId, setEventId] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { getEventById, addEvent, updateEvent } = useEvents();
   const { user } = useAuth();
 
   const userId = user?.id;
 
   const loadEventForEdit = useCallback(
-    (id: string) => {
+    async (id: string) => {
       try {
-        const eventToEdit = getEventById(id);
+        const response = await axios.get<ApiResponse<Event>>(
+          `/api/events/${id}`
+        );
+        const result = response.data;
 
-        if (eventToEdit && eventToEdit.userId === userId) {
-          form.setFieldsValue({
-            title: eventToEdit.title,
-            description: eventToEdit.description,
-            date: dayjs(eventToEdit.date),
-            location: eventToEdit.location,
-            category: eventToEdit.category,
-            maxAttendees: eventToEdit.maxAttendees,
-          });
+        if (result.success) {
+          const eventToEdit = result.data;
+          if (eventToEdit && eventToEdit.userId === userId) {
+            form.setFieldsValue({
+              title: eventToEdit.title,
+              description: eventToEdit.description,
+              date: dayjs(eventToEdit.date),
+              location: eventToEdit.location,
+              category: eventToEdit.category,
+              maxAttendees: eventToEdit.maxAttendees,
+            });
+          } else {
+            message.error(
+              "Event not found or you don't have permission to edit it"
+            );
+            router.push("/my-events");
+          }
         } else {
-          message.error(
-            "Event not found or you don't have permission to edit it"
-          );
+          message.error(result.message);
           router.push("/my-events");
         }
       } catch (error) {
@@ -61,7 +69,7 @@ function CreateEventContent() {
         router.push("/my-events");
       }
     },
-    [form, router, userId, getEventById]
+    [form, router, userId]
   );
 
   useEffect(() => {
@@ -74,10 +82,25 @@ function CreateEventContent() {
   }, [searchParams, loadEventForEdit]);
 
   const handleSubmit = async (values: any) => {
+    if (!userId) {
+      message.error("You must be logged in to create or edit events");
+      return;
+    }
+
     setLoading(true);
     try {
       if (isEditMode && eventId) {
-        const existingEvent = getEventById(eventId);
+        const response = await axios.get<ApiResponse<Event>>(
+          `/api/events/${eventId}`
+        );
+        const result = response.data;
+
+        if (!result.success) {
+          message.error("Failed to get event data");
+          return;
+        }
+
+        const existingEvent = result.data;
         const updatedEvent: Event = {
           id: eventId,
           title: values.title,
@@ -89,13 +112,24 @@ function CreateEventContent() {
           attendeeCount: existingEvent?.attendeeCount || 0,
           maxAttendees: Number(values.maxAttendees),
           attendees: existingEvent?.attendees || [],
+          createdAt: existingEvent?.createdAt || new Date().toISOString(),
         };
 
-        updateEvent(updatedEvent);
-        message.success("Event updated successfully!");
+        const updateResponse = await axios.put<ApiResponse<Event>>(
+          `/api/events/${eventId}`,
+          updatedEvent
+        );
+        const updateResult = updateResponse.data;
+
+        if (updateResult.success) {
+          message.success("Event updated successfully!");
+        } else {
+          message.error(updateResult.message);
+          return;
+        }
       } else {
         const newEvent: Event = {
-          id: Date.now().toString(),
+          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           title: values.title,
           description: values.description,
           date: values.date.format("YYYY-MM-DD"),
@@ -105,10 +139,21 @@ function CreateEventContent() {
           attendeeCount: 0,
           maxAttendees: Number(values.maxAttendees),
           attendees: [],
+          createdAt: new Date().toISOString(),
         };
 
-        addEvent(newEvent);
-        message.success("Event created successfully!");
+        const createResponse = await axios.post<ApiResponse<Event>>(
+          "/api/events",
+          newEvent
+        );
+        const createResult = createResponse.data;
+
+        if (createResult.success) {
+          message.success("Event created successfully!");
+        } else {
+          message.error(createResult.message);
+          return;
+        }
       }
 
       router.push("/my-events");
@@ -119,7 +164,6 @@ function CreateEventContent() {
       setLoading(false);
     }
   };
-
   const handleCancel = () => {
     router.push("/my-events");
   };
