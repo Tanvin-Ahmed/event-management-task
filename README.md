@@ -44,6 +44,38 @@ A modern event management application built with Next.js 15, TypeScript, and Tai
 - **React Icons** - For consistent iconography
 - **Day.js** - Lightweight date formatting
 
+## 🎯 How to Use the Application
+
+### 1. Browse Events
+
+- Navigate to the home page to see all available events
+- Use the search bar to find specific events where you can search event by title
+- Filter events by category
+
+### 2. View Event Details
+
+- Click on any event card to view detailed information
+- See event description, date, time, location, and current attendees
+- RSVP or cancel your attendance from the event details page
+
+### 3. Create New Event
+
+- Click "Create Event" in the navigation header
+- Fill in all required event details:
+  - Event title and description
+  - Date and time
+  - Location
+  - Category
+  - Maximum attendees
+- Submit the form to create your event
+
+### 4. Manage Your Events
+
+- Visit "My Events" to see:
+  - Events you've created
+  - Events you've RSVP'd to
+- Cancel your RSVP or edit your events as needed
+
 ## 📋 Prerequisites
 
 Before running this project locally, make sure you have the following installed:
@@ -106,66 +138,6 @@ pnpm dev
 ### Step 4: Open the Application
 
 Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to see the application running.
-
-## 📁 Project Structure
-
-```
-event-management/
-├── public/                 # Static assets
-│   ├── logo.webp          # Application logo
-│   └── *.svg              # Various SVG icons
-├── src/
-│   ├── app/               # Next.js App Router pages
-│   │   ├── api/           # API routes
-│   │   │   └── events/    # Event-related API endpoints
-│   │   ├── create-event/  # Create event page
-│   │   ├── events/        # Event listing and details pages
-│   │   └── my-events/     # User's events page
-│   ├── components/        # Reusable UI components
-│   │   ├── shared/        # Shared components (Header, etc.)
-│   │   └── *.tsx          # Feature-specific components
-│   ├── context/           # React Context providers
-│   ├── data/              # Mock data and data store
-│   ├── hooks/             # Custom React hooks
-│   ├── types/             # TypeScript type definitions
-│   └── utils/             # Utility functions
-├── package.json           # Project dependencies and scripts
-├── tsconfig.json          # TypeScript configuration
-├── tailwind.config.js     # Tailwind CSS configuration
-└── next.config.ts         # Next.js configuration
-```
-
-## 🎯 How to Use the Application
-
-### 1. Browse Events
-
-- Navigate to the home page to see all available events
-- Use the search bar to find specific events where you can search event by title
-- Filter events by category
-
-### 2. View Event Details
-
-- Click on any event card to view detailed information
-- See event description, date, time, location, and current attendees
-- RSVP or cancel your attendance from the event details page
-
-### 3. Create New Event
-
-- Click "Create Event" in the navigation header
-- Fill in all required event details:
-  - Event title and description
-  - Date and time
-  - Location
-  - Category
-  - Maximum attendees
-- Submit the form to create your event
-
-### 4. Manage Your Events
-
-- Visit "My Events" to see:
-  - Events you've created
-  - Events you've RSVP'd to
-- Cancel your RSVP or edit your events as needed
 
 ## 🌐 API Endpoints
 
