@@ -6,6 +6,15 @@ export interface Event {
   location: string;
   category: "Conference" | "Workshop" | "Meetup";
   userId?: string;
+  attendeeCount: number;
+  maxAttendees?: number;
+  attendees: string[];
+}
+
+export interface RsvpRequest {
+  eventId: string;
+  userId: string;
+  action: "rsvp" | "cancel";
 }
 
 export interface ApiResponse<T> {

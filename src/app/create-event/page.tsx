@@ -1,18 +1,29 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Form, Input, DatePicker, Select, Button, Card, message } from "antd";
+import { useState, useEffect, useCallback, Suspense } from "react";
+import {
+  Form,
+  Input,
+  DatePicker,
+  Select,
+  Button,
+  Card,
+  message,
+  InputNumber,
+} from "antd";
 import { SaveOutlined } from "@ant-design/icons";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Event } from "@/types";
 import { useEvents } from "@/context/EventsContext";
+import { useAuth } from "@/context/AuthContext";
+import ProtectedRoute from "@/components/shared/ProtectedRoute";
 import dayjs from "dayjs";
 import Link from "next/link";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
-export default function CreateEventPage() {
+function CreateEventContent() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -20,8 +31,9 @@ export default function CreateEventPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { getEventById, addEvent, updateEvent } = useEvents();
+  const { user } = useAuth();
 
-  const userId = "user123";
+  const userId = user?.id;
 
   const loadEventForEdit = useCallback(
     (id: string) => {
@@ -35,6 +47,7 @@ export default function CreateEventPage() {
             date: dayjs(eventToEdit.date),
             location: eventToEdit.location,
             category: eventToEdit.category,
+            maxAttendees: eventToEdit.maxAttendees,
           });
         } else {
           message.error(
@@ -64,6 +77,7 @@ export default function CreateEventPage() {
     setLoading(true);
     try {
       if (isEditMode && eventId) {
+        const existingEvent = getEventById(eventId);
         const updatedEvent: Event = {
           id: eventId,
           title: values.title,
@@ -72,6 +86,9 @@ export default function CreateEventPage() {
           location: values.location,
           category: values.category,
           userId: userId,
+          attendeeCount: existingEvent?.attendeeCount || 0,
+          maxAttendees: Number(values.maxAttendees),
+          attendees: existingEvent?.attendees || [],
         };
 
         updateEvent(updatedEvent);
@@ -85,6 +102,9 @@ export default function CreateEventPage() {
           location: values.location,
           category: values.category,
           userId: userId,
+          attendeeCount: 0,
+          maxAttendees: Number(values.maxAttendees),
+          attendees: [],
         };
 
         addEvent(newEvent);
@@ -233,6 +253,23 @@ export default function CreateEventPage() {
               </Select>
             </Form.Item>
 
+            <Form.Item
+              name="maxAttendees"
+              label="Maximum Attendees"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter the maximum number of attendees",
+                },
+              ]}
+            >
+              <InputNumber
+                placeholder="Enter maximum number of attendees"
+                style={{ width: "100%" }}
+                min={1}
+              />
+            </Form.Item>
+
             <div className="flex gap-4 pt-4">
               <Button
                 type="default"
@@ -257,5 +294,24 @@ export default function CreateEventPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function CreateEventPage() {
+  return (
+    <ProtectedRoute>
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+              <p className="text-gray-600">Loading...</p>
+            </div>
+          </div>
+        }
+      >
+        <CreateEventContent />
+      </Suspense>
+    </ProtectedRoute>
   );
 }

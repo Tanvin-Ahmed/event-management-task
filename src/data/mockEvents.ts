@@ -9,6 +9,9 @@ export const mockEvents: Event[] = [
     date: "2025-10-15",
     location: "Dhaka, Bangladesh",
     category: "Conference",
+    attendeeCount: 45,
+    maxAttendees: 200,
+    attendees: ["user1", "user2", "user3"],
   },
   {
     id: "2",
@@ -18,6 +21,9 @@ export const mockEvents: Event[] = [
     date: "2025-09-20",
     location: "Chittagong, Bangladesh",
     category: "Workshop",
+    attendeeCount: 12,
+    maxAttendees: 30,
+    attendees: ["user4", "user5"],
   },
   {
     id: "3",
@@ -27,6 +33,9 @@ export const mockEvents: Event[] = [
     date: "2025-09-10",
     location: "Sylhet, Bangladesh",
     category: "Meetup",
+    attendeeCount: 8,
+    maxAttendees: 25,
+    attendees: ["user1", "user6"],
   },
   {
     id: "4",
@@ -36,6 +45,9 @@ export const mockEvents: Event[] = [
     date: "2025-11-05",
     location: "Rajshahi, Bangladesh",
     category: "Workshop",
+    attendeeCount: 25,
+    maxAttendees: 50,
+    attendees: ["user7", "user8", "user9"],
   },
   {
     id: "5",
@@ -45,6 +57,9 @@ export const mockEvents: Event[] = [
     date: "2025-12-01",
     location: "Dhaka, Bangladesh",
     category: "Conference",
+    attendeeCount: 89,
+    maxAttendees: 300,
+    attendees: ["user1", "user10", "user11"],
   },
   {
     id: "6",
@@ -54,6 +69,9 @@ export const mockEvents: Event[] = [
     date: "2025-09-25",
     location: "Khulna, Bangladesh",
     category: "Meetup",
+    attendeeCount: 15,
+    maxAttendees: 40,
+    attendees: ["user12", "user13"],
   },
   {
     id: "7",
@@ -63,6 +81,9 @@ export const mockEvents: Event[] = [
     date: "2025-10-08",
     location: "Barisal, Bangladesh",
     category: "Workshop",
+    attendeeCount: 18,
+    maxAttendees: 35,
+    attendees: ["user14", "user15", "user16"],
   },
   {
     id: "8",
@@ -72,5 +93,8 @@ export const mockEvents: Event[] = [
     date: "2025-11-20",
     location: "Rangpur, Bangladesh",
     category: "Conference",
+    attendeeCount: 67,
+    maxAttendees: 150,
+    attendees: ["user17", "user18", "user19", "user20"],
   },
 ];

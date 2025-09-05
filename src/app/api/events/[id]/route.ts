@@ -1,5 +1,4 @@
-import { mockEvents } from "@/data/mockEvents";
-
+import { getEventById } from "@/data/eventsStore";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -9,7 +8,7 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const event = mockEvents.find((event) => event.id === id);
+    const event = getEventById(id);
 
     if (!event) {
       return NextResponse.json(

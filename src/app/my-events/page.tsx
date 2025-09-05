@@ -4,15 +4,18 @@ import { Button, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useEvents } from "@/context/EventsContext";
+import { useAuth } from "@/context/AuthContext";
+import ProtectedRoute from "@/components/shared/ProtectedRoute";
 import EventCard from "@/components/EventCard";
 
-export default function MyEventsPage() {
+function MyEventsContent() {
   const router = useRouter();
   const { loading, getUserEvents, deleteEvent } = useEvents();
+  const { user } = useAuth();
 
-  const userId = "user123";
+  const userId = user?.id;
 
-  const myEvents = getUserEvents(userId);
+  const myEvents = userId ? getUserEvents(userId) : [];
 
   const handleDeleteEvent = (eventId: string) => {
     try {
@@ -34,9 +37,10 @@ export default function MyEventsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">Loading...</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-600">Loading your events...</p>
         </div>
       </div>
     );
@@ -98,5 +102,13 @@ export default function MyEventsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function MyEventsPage() {
+  return (
+    <ProtectedRoute>
+      <MyEventsContent />
+    </ProtectedRoute>
   );
 }

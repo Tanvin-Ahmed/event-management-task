@@ -1,22 +1,43 @@
 import { Event } from "@/types";
 import { formatDate } from "@/utils/formatDate";
+
+import {
+  EditOutlined,
+  DeleteOutlined,
+  UserOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
+
 import { Button } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import Link from "next/link";
+
+import { useRouter } from "next/navigation";
+
+import RsvpButton from "./RsvpButton";
 
 interface EventCardProps {
   event: Event;
   showActions?: boolean;
+  showRsvp?: boolean;
+  userId?: string;
   onEdit?: (eventId: string) => void;
   onDelete?: (eventId: string) => void;
+  onRsvpUpdate?: (updatedEvent: Event) => void;
 }
 
 export default function EventCard({
   event,
   showActions = false,
+  showRsvp = false,
+  userId = "current-user",
   onEdit,
   onDelete,
+  onRsvpUpdate,
 }: EventCardProps) {
+  const router = useRouter();
+
+  const handleViewDetails = () => {
+    router.push(`/events/${event.id}`);
+  };
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "Conference":
@@ -31,7 +52,7 @@ export default function EventCard({
   };
 
   const CardContent = () => (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6 border border-gray-200 cursor-pointer h-full flex flex-col">
+    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6 border border-gray-200 h-full flex flex-col">
       <div className="flex justify-between items-start mb-3">
         <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">
           {event.title}
@@ -59,15 +80,48 @@ export default function EventCard({
         </div>
       </div>
 
+      <div className="flex items-center justify-between text-sm text-gray-600 mt-3 pt-3 border-t border-gray-100">
+        <div className="flex items-center gap-1">
+          <UserOutlined />
+          <span>
+            {event.attendeeCount} attending
+            {event.maxAttendees && ` / ${event.maxAttendees}`}
+          </span>
+        </div>
+        {event.maxAttendees && event.attendeeCount >= event.maxAttendees && (
+          <span className="text-red-500 font-medium text-xs">Full</span>
+        )}
+      </div>
+
+      {showRsvp && !showActions && (
+        <div className="mt-3 flex gap-2">
+          <div className="flex-1">
+            <RsvpButton
+              event={event}
+              userId={userId}
+              onRsvpUpdate={onRsvpUpdate}
+              size="small"
+            />
+          </div>
+          <Button
+            type="default"
+            size="small"
+            icon={<EyeOutlined />}
+            onClick={handleViewDetails}
+            className="flex-1"
+          >
+            Details
+          </Button>
+        </div>
+      )}
+
       {showActions && (
         <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200 mt-4">
           <Button
             type="primary"
             size="small"
             icon={<EditOutlined />}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+            onClick={() => {
               onEdit?.(event.id);
             }}
             className="flex-1 min-w-0 bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700"
@@ -92,17 +146,9 @@ export default function EventCard({
     </div>
   );
 
-  if (showActions) {
-    return (
-      <div className="h-full">
-        <CardContent />
-      </div>
-    );
-  }
-
   return (
-    <Link href={`/events/${event.id}`} className="h-full">
+    <div className="h-full">
       <CardContent />
-    </Link>
+    </div>
   );
 }

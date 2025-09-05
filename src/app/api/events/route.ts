@@ -1,4 +1,4 @@
-import { mockEvents } from "@/data/mockEvents";
+import { getEvents } from "@/data/eventsStore";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -8,8 +8,10 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category") || "";
     const id = searchParams.get("id");
 
+    const events = getEvents();
+
     if (id) {
-      const event = mockEvents.find((event) => event.id === id);
+      const event = events.find((event) => event.id === id);
       if (!event) {
         return NextResponse.json(
           {
@@ -27,7 +29,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    let filteredEvents = mockEvents;
+    let filteredEvents = events;
 
     if (search) {
       filteredEvents = filteredEvents.filter((event) =>

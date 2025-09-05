@@ -14,6 +14,14 @@ export default function EventList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
+  const handleRsvpUpdate = (updatedEvent: Event) => {
+    setEvents((prevEvents) =>
+      prevEvents.map((event) =>
+        event.id === updatedEvent.id ? updatedEvent : event
+      )
+    );
+  };
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -118,7 +126,12 @@ export default function EventList() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events.map((event) => (
-            <EventCard key={event.id} event={event} />
+            <EventCard
+              key={event.id}
+              event={event}
+              showRsvp={true}
+              onRsvpUpdate={handleRsvpUpdate}
+            />
           ))}
         </div>
       )}
