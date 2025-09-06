@@ -28,7 +28,6 @@ export default function EventDetailsClient({
   initialEvent,
 }: EventDetailsClientProps) {
   const [event, setEvent] = useState<Event>(initialEvent);
-  const userId = "current-user";
 
   const handleRsvpUpdate = (updatedEvent: Event) => {
     setEvent(updatedEvent);
@@ -135,7 +134,6 @@ export default function EventDetailsClient({
                 <div className="flex-shrink-0">
                   <RsvpButton
                     event={event}
-                    userId={userId}
                     onRsvpUpdate={handleRsvpUpdate}
                     className="min-w-[140px]"
                   />

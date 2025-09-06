@@ -10,7 +10,6 @@ interface EventCardProps {
   showActions?: boolean;
   showRsvp?: boolean;
   showDetails?: boolean;
-  userId?: string;
   onEdit?: (eventId: string) => void;
   onDelete?: (eventId: string) => void;
   onRsvpUpdate?: (updatedEvent: Event) => void;
@@ -21,7 +20,6 @@ export default function EventCard({
   showActions = false,
   showRsvp = false,
   showDetails = false,
-  userId = "current-user",
   onEdit,
   onDelete,
   onRsvpUpdate,
@@ -84,12 +82,7 @@ export default function EventCard({
       {showRsvp && !showActions && (
         <div className="mt-3 flex gap-2">
           <div className="flex-1">
-            <RsvpButton
-              event={event}
-              userId={userId}
-              onRsvpUpdate={onRsvpUpdate}
-              size="sm"
-            />
+            <RsvpButton event={event} onRsvpUpdate={onRsvpUpdate} size="sm" />
           </div>
           <Button
             variant="outline"

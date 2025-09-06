@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { UserPlus, UserMinus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface RsvpButtonProps {
   event: Event;
-  userId: string;
+  userId?: string;
   onRsvpUpdate?: (updatedEvent: Event) => void;
   size?: "sm" | "default" | "lg";
   className?: string;
@@ -21,7 +23,13 @@ export default function RsvpButton({
   className = "",
 }: RsvpButtonProps) {
   const { rsvpToEvent, loading, error } = useRsvp();
-  const [hasRsvped, setHasRsvped] = useState(event.attendees.includes(userId));
+  const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  const currentUserId = user?.id || userId;
+  const [hasRsvped, setHasRsvped] = useState(
+    currentUserId ? event.attendees.includes(currentUserId) : false
+  );
   const [currentEvent, setCurrentEvent] = useState(event);
 
   useEffect(() => {
@@ -30,14 +38,31 @@ export default function RsvpButton({
     }
   }, [error]);
 
+  useEffect(() => {
+    if (currentUserId) {
+      setHasRsvped(event.attendees.includes(currentUserId));
+    }
+  }, [currentUserId, event.attendees]);
+
   const handleRsvp = async () => {
+    if (!isAuthenticated()) {
+      toast.error("Please login to RSVP for events");
+      router.push("/sign-in");
+      return;
+    }
+
+    if (!currentUserId) {
+      toast.error("User not found");
+      return;
+    }
+
     try {
       const action = hasRsvped ? "cancel" : "rsvp";
-      const updatedEvent = await rsvpToEvent(event.id, userId, action);
+      const updatedEvent = await rsvpToEvent(event.id, currentUserId, action);
 
       if (updatedEvent) {
         setCurrentEvent(updatedEvent);
-        setHasRsvped(updatedEvent.attendees.includes(userId));
+        setHasRsvped(updatedEvent.attendees.includes(currentUserId));
         onRsvpUpdate?.(updatedEvent);
 
         if (action === "rsvp") {
