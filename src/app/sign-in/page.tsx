@@ -71,8 +71,7 @@ function SignInContent() {
       } else {
         toast.error("Invalid email or password");
       }
-    } catch (error) {
-      console.error("Login error:", error);
+    } catch {
       toast.error("An error occurred during sign in");
     } finally {
       setLoading(false);

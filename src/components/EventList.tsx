@@ -38,8 +38,6 @@ export default function EventList() {
         );
         const data = response.data;
 
-        console.log("Fetch Events Result:", data);
-
         if (data.success) {
           setEvents(data.data);
           setError(null);

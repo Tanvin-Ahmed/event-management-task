@@ -46,9 +46,7 @@ export default function RsvpButton({
           toast.success("Successfully cancelled RSVP!");
         }
       }
-    } catch (err) {
-      console.error("RSVP failed:", err);
-    }
+    } catch {}
   };
 
   const isAtCapacity = Boolean(

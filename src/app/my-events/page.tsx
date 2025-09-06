@@ -44,8 +44,7 @@ function MyEventsContent() {
       } else {
         toast.error(result.message);
       }
-    } catch (error) {
-      console.error("Error fetching my events:", error);
+    } catch {
       toast.error("Failed to fetch events");
     } finally {
       setLoading(false);
@@ -90,8 +89,7 @@ function MyEventsContent() {
         toast.error(result.message);
         setDeleteModal((prev) => ({ ...prev, isDeleting: false }));
       }
-    } catch (error) {
-      console.error("Error deleting event:", error);
+    } catch {
       toast.error("Failed to delete event");
       setDeleteModal((prev) => ({ ...prev, isDeleting: false }));
     }

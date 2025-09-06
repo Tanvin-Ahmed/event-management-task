@@ -79,8 +79,7 @@ function CreateEventContent() {
           toast.error(result.message);
           router.push("/my-events");
         }
-      } catch (error) {
-        console.error("Error loading event for edit:", error);
+      } catch {
         toast.error("Failed to load event data");
         router.push("/my-events");
       }
@@ -226,8 +225,7 @@ function CreateEventContent() {
       }
 
       router.push("/my-events");
-    } catch (error) {
-      console.error("Error saving event:", error);
+    } catch {
       toast.error("Failed to save event. Please try again.");
     } finally {
       setLoading(false);

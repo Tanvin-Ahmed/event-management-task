@@ -139,15 +139,287 @@ pnpm dev
 
 Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to see the application running.
 
-## 🌐 API Endpoints
+## 🌐 API Documentation
 
-The application includes the following API routes:
+The application includes comprehensive REST API endpoints for event management:
 
-- `GET /api/events` - Fetch all events
-- `GET /api/my-events` - Fetch all events of a user
-- `GET /api/events/[id]` - Fetch specific event by ID
-- `PUT /api/events/[id]/rsvp` - RSVP to event or cancel RSVP
-- `DELETE /api/events/[id]` - Delete specific event by ID
+### Events Management
+
+#### Get All Events
+
+```http
+GET /api/events
+```
+
+**Query Parameters:**
+
+- `search` (optional): Search events by title
+- `category` (optional): Filter by event category (`Conference`, `Workshop`, `Meetup`, `All`)
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "title": "Event Title",
+      "description": "Event description",
+      "date": "2025-01-15T10:00:00.000Z",
+      "location": "Event Location",
+      "category": "Conference",
+      "userId": "creator-id",
+      "attendeeCount": 5,
+      "maxAttendees": 100,
+      "attendees": ["user-id-1", "user-id-2"],
+      "createdAt": "2025-01-01T10:00:00.000Z"
+    }
+  ],
+  "message": "Events retrieved successfully"
+}
+```
+
+#### Create New Event
+
+```http
+POST /api/events
+```
+
+**Request Body:**
+
+```json
+{
+  "title": "New Event",
+  "description": "Event description",
+  "date": "2025-01-15T10:00:00.000Z",
+  "location": "Event Location",
+  "category": "Conference",
+  "userId": "creator-id",
+  "maxAttendees": 100
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "generated-uuid",
+    "title": "New Event",
+    "description": "Event description",
+    "date": "2025-01-15T10:00:00.000Z",
+    "location": "Event Location",
+    "category": "Conference",
+    "userId": "creator-id",
+    "attendeeCount": 0,
+    "maxAttendees": 100,
+    "attendees": [],
+    "createdAt": "2025-01-01T10:00:00.000Z"
+  },
+  "message": "Event created successfully"
+}
+```
+
+#### Update Event
+
+```http
+PUT /api/events
+```
+
+**Request Body:**
+
+```json
+{
+  "id": "event-uuid",
+  "title": "Updated Event Title",
+  "description": "Updated description",
+  "date": "2025-01-15T10:00:00.000Z",
+  "location": "Updated Location",
+  "category": "Workshop",
+  "maxAttendees": 150
+}
+```
+
+#### Delete Event (with Query Parameter)
+
+```http
+DELETE /api/events?id=event-uuid
+```
+
+### Individual Event Operations
+
+#### Get Event by ID
+
+```http
+GET /api/events/[id]
+```
+
+**Parameters:**
+
+- `id`: Event UUID
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "event-uuid",
+    "title": "Event Title",
+    "description": "Event description",
+    "date": "2025-01-15T10:00:00.000Z",
+    "location": "Event Location",
+    "category": "Conference",
+    "userId": "creator-id",
+    "attendeeCount": 5,
+    "maxAttendees": 100,
+    "attendees": ["user-id-1", "user-id-2"],
+    "createdAt": "2025-01-01T10:00:00.000Z"
+  },
+  "message": "Event retrieved successfully"
+}
+```
+
+#### Update Specific Event
+
+```http
+PUT /api/events/[id]
+```
+
+**Parameters:**
+
+- `id`: Event UUID
+
+**Request Body:**
+
+```json
+{
+  "title": "Updated Title",
+  "description": "Updated description",
+  "date": "2025-01-15T10:00:00.000Z",
+  "location": "Updated Location",
+  "category": "Meetup",
+  "maxAttendees": 200
+}
+```
+
+#### Delete Specific Event
+
+```http
+DELETE /api/events/[id]
+```
+
+**Parameters:**
+
+- `id`: Event UUID
+
+### RSVP Management
+
+#### RSVP to Event or Cancel RSVP
+
+```http
+PUT /api/events/[id]/rsvp
+```
+
+**Parameters:**
+
+- `id`: Event UUID
+
+**Request Body:**
+
+```json
+{
+  "userId": "user-uuid",
+  "action": "rsvp" // or "cancel"
+}
+```
+
+**Response (RSVP Success):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "event-uuid",
+    "title": "Event Title",
+    "attendeeCount": 6,
+    "attendees": ["user-id-1", "user-id-2", "new-user-id"]
+  },
+  "message": "Successfully RSVPed to the event"
+}
+```
+
+**Response (Cancel Success):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "event-uuid",
+    "attendeeCount": 4,
+    "attendees": ["user-id-1", "user-id-2"]
+  },
+  "message": "Successfully cancelled RSVP"
+}
+```
+
+### User Events
+
+#### Get My Events
+
+```http
+GET /api/my-events?userId=user-uuid
+```
+
+**Query Parameters:**
+
+- `userId` (required): User UUID
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "createdEvents": [
+      {
+        "id": "event-uuid-1",
+        "title": "My Created Event"
+      }
+    ],
+    "rsvpedEvents": [
+      {
+        "id": "event-uuid-2",
+        "title": "Event I RSVPed To"
+      }
+    ]
+  },
+  "message": "User events retrieved successfully"
+}
+```
+
+### Error Responses
+
+All endpoints return consistent error responses:
+
+```json
+{
+  "success": false,
+  "message": "Error description",
+  "error": "Detailed error message",
+  "data": null
+}
+```
+
+**Common HTTP Status Codes:**
+
+- `200`: Success
+- `201`: Created
+- `400`: Bad Request
+- `404`: Not Found
+- `500`: Internal Server Error
 
 ---
 

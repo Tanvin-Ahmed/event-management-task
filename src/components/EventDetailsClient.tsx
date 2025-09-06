@@ -37,7 +37,6 @@ export default function EventDetailsClient({
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6">
-        {/* Back Button */}
         <Link
           href="/"
           className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-6 text-sm font-medium"
@@ -46,9 +45,7 @@ export default function EventDetailsClient({
           Back to Events
         </Link>
 
-        {/* Main Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* Header Section */}
           <div className="px-6 py-6 border-b border-gray-100">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
               <div className="flex-1">
@@ -66,9 +63,7 @@ export default function EventDetailsClient({
             </div>
           </div>
 
-          {/* Content Section */}
           <div className="px-6 py-6">
-            {/* Event Info Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                 <Calendar className="text-blue-500 h-5 w-5" />
@@ -116,7 +111,6 @@ export default function EventDetailsClient({
               </div>
             </div>
 
-            {/* Description */}
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 About This Event
@@ -128,7 +122,6 @@ export default function EventDetailsClient({
               </div>
             </div>
 
-            {/* RSVP Section */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
