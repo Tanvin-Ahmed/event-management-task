@@ -14,6 +14,8 @@ async function fetchEventById(id: string): Promise<Event | null> {
         ? `${process.env.VERCEL_URL}`
         : "http://localhost:3000";
 
+    console.log("Base URL:", baseUrl); // Debugging line
+
     const response = await axios.get(`${baseUrl}/api/events/${id}`);
 
     if (response.data.success) {
