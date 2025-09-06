@@ -141,7 +141,7 @@ Open your browser and navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 🌐 API Documentation
 
-The application includes comprehensive REST API endpoints for event management:
+The application includes REST API endpoints for event management:
 
 ### Events Management
 
@@ -166,7 +166,7 @@ GET /api/events
       "id": "uuid",
       "title": "Event Title",
       "description": "Event description",
-      "date": "2025-01-15T10:00:00.000Z",
+      "date": "2025-01-15",
       "location": "Event Location",
       "category": "Conference",
       "userId": "creator-id",
@@ -192,13 +192,15 @@ POST /api/events
 {
   "title": "New Event",
   "description": "Event description",
-  "date": "2025-01-15T10:00:00.000Z",
+  "date": "2025-01-15",
   "location": "Event Location",
   "category": "Conference",
   "userId": "creator-id",
   "maxAttendees": 100
 }
 ```
+
+**Required Fields:** `title`, `description`, `date`, `location`
 
 **Response:**
 
@@ -209,7 +211,7 @@ POST /api/events
     "id": "generated-uuid",
     "title": "New Event",
     "description": "Event description",
-    "date": "2025-01-15T10:00:00.000Z",
+    "date": "2025-01-15",
     "location": "Event Location",
     "category": "Conference",
     "userId": "creator-id",
@@ -220,32 +222,6 @@ POST /api/events
   },
   "message": "Event created successfully"
 }
-```
-
-#### Update Event
-
-```http
-PUT /api/events
-```
-
-**Request Body:**
-
-```json
-{
-  "id": "event-uuid",
-  "title": "Updated Event Title",
-  "description": "Updated description",
-  "date": "2025-01-15T10:00:00.000Z",
-  "location": "Updated Location",
-  "category": "Workshop",
-  "maxAttendees": 150
-}
-```
-
-#### Delete Event (with Query Parameter)
-
-```http
-DELETE /api/events?id=event-uuid
 ```
 
 ### Individual Event Operations
@@ -269,7 +245,7 @@ GET /api/events/[id]
     "id": "event-uuid",
     "title": "Event Title",
     "description": "Event description",
-    "date": "2025-01-15T10:00:00.000Z",
+    "date": "2025-01-15",
     "location": "Event Location",
     "category": "Conference",
     "userId": "creator-id",
@@ -298,10 +274,32 @@ PUT /api/events/[id]
 {
   "title": "Updated Title",
   "description": "Updated description",
-  "date": "2025-01-15T10:00:00.000Z",
+  "date": "2025-01-15",
   "location": "Updated Location",
   "category": "Meetup",
   "maxAttendees": 200
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "event-uuid",
+    "title": "Updated Title",
+    "description": "Updated description",
+    "date": "2025-01-15",
+    "location": "Updated Location",
+    "category": "Meetup",
+    "userId": "creator-id",
+    "attendeeCount": 5,
+    "maxAttendees": 200,
+    "attendees": ["user-id-1", "user-id-2"],
+    "createdAt": "2025-01-01T10:00:00.000Z"
+  },
+  "message": "Event updated successfully"
 }
 ```
 
@@ -314,6 +312,15 @@ DELETE /api/events/[id]
 **Parameters:**
 
 - `id`: Event UUID
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Event deleted successfully"
+}
+```
 
 ### RSVP Management
 
@@ -332,9 +339,11 @@ PUT /api/events/[id]/rsvp
 ```json
 {
   "userId": "user-uuid",
-  "action": "rsvp" // or "cancel"
+  "action": "rsvp"
 }
 ```
+
+**Valid Actions:** `"rsvp"` or `"cancel"`
 
 **Response (RSVP Success):**
 
@@ -344,8 +353,15 @@ PUT /api/events/[id]/rsvp
   "data": {
     "id": "event-uuid",
     "title": "Event Title",
+    "description": "Event description",
+    "date": "2025-01-15",
+    "location": "Event Location",
+    "category": "Conference",
+    "userId": "creator-id",
     "attendeeCount": 6,
-    "attendees": ["user-id-1", "user-id-2", "new-user-id"]
+    "maxAttendees": 100,
+    "attendees": ["user-id-1", "user-id-2", "new-user-id"],
+    "createdAt": "2025-01-01T10:00:00.000Z"
   },
   "message": "Successfully RSVPed to the event"
 }
@@ -358,8 +374,16 @@ PUT /api/events/[id]/rsvp
   "success": true,
   "data": {
     "id": "event-uuid",
+    "title": "Event Title",
+    "description": "Event description",
+    "date": "2025-01-15",
+    "location": "Event Location",
+    "category": "Conference",
+    "userId": "creator-id",
     "attendeeCount": 4,
-    "attendees": ["user-id-1", "user-id-2"]
+    "maxAttendees": 100,
+    "attendees": ["user-id-1", "user-id-2"],
+    "createdAt": "2025-01-01T10:00:00.000Z"
   },
   "message": "Successfully cancelled RSVP"
 }
@@ -382,20 +406,21 @@ GET /api/my-events?userId=user-uuid
 ```json
 {
   "success": true,
-  "data": {
-    "createdEvents": [
-      {
-        "id": "event-uuid-1",
-        "title": "My Created Event"
-      }
-    ],
-    "rsvpedEvents": [
-      {
-        "id": "event-uuid-2",
-        "title": "Event I RSVPed To"
-      }
-    ]
-  },
+  "data": [
+    {
+      "id": "event-uuid-1",
+      "title": "My Created Event",
+      "description": "Event description",
+      "date": "2025-01-15",
+      "location": "Event Location",
+      "category": "Conference",
+      "userId": "user-uuid",
+      "attendeeCount": 5,
+      "maxAttendees": 100,
+      "attendees": ["user-id-1", "user-id-2"],
+      "createdAt": "2025-01-01T10:00:00.000Z"
+    }
+  ],
   "message": "User events retrieved successfully"
 }
 ```
@@ -417,9 +442,58 @@ All endpoints return consistent error responses:
 
 - `200`: Success
 - `201`: Created
-- `400`: Bad Request
-- `404`: Not Found
+- `400`: Bad Request (missing required fields, invalid action, already RSVPed, etc.)
+- `404`: Not Found (event not found)
 - `500`: Internal Server Error
+
+**Example Error Responses:**
+
+**Missing Required Fields (400):**
+
+```json
+{
+  "success": false,
+  "message": "Missing required fields: title, description, date, location",
+  "data": null
+}
+```
+
+**Event Not Found (404):**
+
+```json
+{
+  "success": false,
+  "message": "Event not found",
+  "data": null
+}
+```
+
+**Already RSVPed (400):**
+
+```json
+{
+  "success": false,
+  "message": "You have already RSVPed to this event",
+  "data": {
+    "id": "event-uuid",
+    "title": "Event Title"
+  }
+}
+```
+
+**Event at Capacity (400):**
+
+```json
+{
+  "success": false,
+  "message": "Event is at maximum capacity",
+  "data": {
+    "id": "event-uuid",
+    "attendeeCount": 100,
+    "maxAttendees": 100
+  }
+}
+```
 
 ---
 

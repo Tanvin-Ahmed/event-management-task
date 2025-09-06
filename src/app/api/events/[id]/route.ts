@@ -1,5 +1,6 @@
 import { getEventById, updateEvent, deleteEvent } from "@/data/eventsStore";
 import { Event } from "@/types";
+
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -102,7 +103,6 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      data: deletedEvent,
       message: "Event deleted successfully",
     });
   } catch (error: any) {
