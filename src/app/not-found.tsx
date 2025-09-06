@@ -15,7 +15,7 @@ export default function GlobalNotFound() {
         <div className="space-y-3">
           <Link
             href="/"
-            className="block w-full bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition-colors"
+            className="block w-full bg-gray-200 text-gray-900 px-3 py-2 rounded-md hover:bg-gray-300 transition-colors"
           >
             Go Back to Home
           </Link>
