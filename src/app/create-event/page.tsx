@@ -117,7 +117,7 @@ function CreateEventContent() {
 
     if (!date) {
       newErrors.date = "Please select the event date";
-    } else if (date < new Date()) {
+    } else if (date.getTime() < Date.now() - 24 * 60 * 60 * 1000) {
       newErrors.date = "Event date cannot be in the past";
     }
 
@@ -232,10 +232,6 @@ function CreateEventContent() {
     }
   };
 
-  const handleCancel = () => {
-    router.push("/my-events");
-  };
-
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -330,8 +326,15 @@ function CreateEventContent() {
                     <Calendar
                       mode="single"
                       selected={date}
-                      onSelect={setDate}
-                      disabled={(date) => date < new Date()}
+                      onSelect={(selectedDate) => {
+                        setDate(selectedDate);
+                        if (errors.date && selectedDate) {
+                          setErrors((prev) => ({ ...prev, date: "" }));
+                        }
+                      }}
+                      disabled={(date) =>
+                        date.getTime() < Date.now() - 24 * 60 * 60 * 1000
+                      }
                       initialFocus
                     />
                   </PopoverContent>
@@ -407,20 +410,10 @@ function CreateEventContent() {
 
               <div className="flex gap-4 pt-4">
                 <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  onClick={handleCancel}
-                  className="flex-1"
-                  disabled={loading}
-                >
-                  Cancel
-                </Button>
-                <Button
                   type="submit"
                   size="lg"
                   disabled={loading}
-                  className="flex-1"
+                  className="w-full"
                 >
                   <Save className="mr-2 h-4 w-4" />
                   {loading
