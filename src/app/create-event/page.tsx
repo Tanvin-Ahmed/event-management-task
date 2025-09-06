@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -26,29 +25,76 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Save, Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const formSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Please enter the event title")
+    .min(3, "Title must be at least 3 characters long")
+    .max(100, "Title cannot exceed 100 characters"),
+  description: z
+    .string()
+    .min(1, "Please enter the event description")
+    .min(10, "Description must be at least 10 characters long")
+    .max(500, "Description cannot exceed 500 characters"),
+  date: z
+    .date({
+      message: "Please select the event date",
+    })
+    .refine(
+      (date) => date.getTime() >= Date.now() - 24 * 60 * 60 * 1000,
+      "Event date cannot be in the past"
+    ),
+  location: z
+    .string()
+    .min(1, "Please enter the event location")
+    .min(3, "Location must be at least 3 characters long")
+    .max(100, "Location cannot exceed 100 characters"),
+  category: z.enum(["Conference", "Workshop", "Meetup"], {
+    message: "Please select the event category",
+  }),
+  maxAttendees: z
+    .string()
+    .min(1, "Please enter the maximum number of attendees")
+    .refine((val) => Number(val) >= 1, "Maximum attendees must be at least 1"),
+});
 
 function CreateEventContent() {
   const [loading, setLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [eventId, setEventId] = useState<string | null>(null);
-  const [date, setDate] = useState<Date>();
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    location: "",
-    category: "" as "Conference" | "Workshop" | "Meetup" | "",
-    maxAttendees: "",
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
 
   const userId = user?.id;
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      location: "",
+      category: undefined,
+      maxAttendees: "",
+      date: undefined,
+    },
+  });
 
   const loadEventForEdit = useCallback(
     async (id: string) => {
@@ -61,14 +107,14 @@ function CreateEventContent() {
         if (result.success) {
           const eventToEdit = result.data;
           if (eventToEdit && eventToEdit.userId === userId) {
-            setFormData({
+            form.reset({
               title: eventToEdit.title,
               description: eventToEdit.description,
               location: eventToEdit.location,
               category: eventToEdit.category,
               maxAttendees: eventToEdit.maxAttendees?.toString() || "",
+              date: new Date(eventToEdit.date),
             });
-            setDate(new Date(eventToEdit.date));
           } else {
             toast.error(
               "Event not found or you don't have permission to edit it"
@@ -84,7 +130,7 @@ function CreateEventContent() {
         router.push("/my-events");
       }
     },
-    [router, userId]
+    [router, userId, form]
   );
 
   useEffect(() => {
@@ -96,60 +142,7 @@ function CreateEventContent() {
     }
   }, [searchParams, loadEventForEdit]);
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.title.trim()) {
-      newErrors.title = "Please enter the event title";
-    } else if (formData.title.length < 3) {
-      newErrors.title = "Title must be at least 3 characters long";
-    } else if (formData.title.length > 100) {
-      newErrors.title = "Title cannot exceed 100 characters";
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = "Please enter the event description";
-    } else if (formData.description.length < 10) {
-      newErrors.description = "Description must be at least 10 characters long";
-    } else if (formData.description.length > 500) {
-      newErrors.description = "Description cannot exceed 500 characters";
-    }
-
-    if (!date) {
-      newErrors.date = "Please select the event date";
-    } else if (date.getTime() < Date.now() - 24 * 60 * 60 * 1000) {
-      newErrors.date = "Event date cannot be in the past";
-    }
-
-    if (!formData.location.trim()) {
-      newErrors.location = "Please enter the event location";
-    } else if (formData.location.length < 3) {
-      newErrors.location = "Location must be at least 3 characters long";
-    } else if (formData.location.length > 100) {
-      newErrors.location = "Location cannot exceed 100 characters";
-    }
-
-    if (!formData.category) {
-      newErrors.category = "Please select the event category";
-    }
-
-    if (!formData.maxAttendees) {
-      newErrors.maxAttendees = "Please enter the maximum number of attendees";
-    } else if (Number(formData.maxAttendees) < 1) {
-      newErrors.maxAttendees = "Maximum attendees must be at least 1";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!userId) {
       toast.error("You must be logged in to create or edit events");
       return;
@@ -171,14 +164,14 @@ function CreateEventContent() {
         const existingEvent = result.data;
         const updatedEvent: Event = {
           id: eventId,
-          title: formData.title,
-          description: formData.description,
-          date: date!.toISOString().split("T")[0],
-          location: formData.location,
-          category: formData.category as "Conference" | "Workshop" | "Meetup",
+          title: values.title,
+          description: values.description,
+          date: values.date.toISOString().split("T")[0],
+          location: values.location,
+          category: values.category as "Conference" | "Workshop" | "Meetup",
           userId: userId,
           attendeeCount: existingEvent?.attendeeCount || 0,
-          maxAttendees: Number(formData.maxAttendees),
+          maxAttendees: Number(values.maxAttendees),
           attendees: existingEvent?.attendees || [],
           createdAt: existingEvent?.createdAt || new Date().toISOString(),
         };
@@ -198,14 +191,14 @@ function CreateEventContent() {
       } else {
         const newEvent: Event = {
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-          title: formData.title,
-          description: formData.description,
-          date: date!.toISOString().split("T")[0],
-          location: formData.location,
-          category: formData.category as "Conference" | "Workshop" | "Meetup",
+          title: values.title,
+          description: values.description,
+          date: values.date.toISOString().split("T")[0],
+          location: values.location,
+          category: values.category as "Conference" | "Workshop" | "Meetup",
           userId: userId,
           attendeeCount: 0,
-          maxAttendees: Number(formData.maxAttendees),
+          maxAttendees: Number(values.maxAttendees),
           attendees: [],
           createdAt: new Date().toISOString(),
         };
@@ -229,13 +222,6 @@ function CreateEventContent() {
       toast.error("Failed to save event. Please try again.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -264,166 +250,168 @@ function CreateEventContent() {
 
         <Card className="shadow-lg">
           <CardContent className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="title">Event Title</Label>
-                <Input
-                  id="title"
-                  placeholder="Enter event title"
-                  value={formData.title}
-                  onChange={(e) => handleInputChange("title", e.target.value)}
-                  className={`rounded-md ${
-                    errors.title ? "border-red-500" : ""
-                  }`}
-                />
-                {errors.title && (
-                  <p className="text-sm text-red-600">{errors.title}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Describe your event in detail"
-                  rows={4}
-                  value={formData.description}
-                  onChange={(e) =>
-                    handleInputChange("description", e.target.value)
-                  }
-                  className={`rounded-md resize-none ${
-                    errors.description ? "border-red-500" : ""
-                  }`}
-                  maxLength={500}
-                />
-                <div className="flex justify-between text-xs text-gray-500">
-                  {errors.description && (
-                    <span className="text-red-600">{errors.description}</span>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Event Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter event title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                  <span className="ml-auto">
-                    {formData.description.length}/500
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Event Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !date && "text-muted-foreground",
-                        errors.date && "border-red-500"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={(selectedDate) => {
-                        setDate(selectedDate);
-                        if (errors.date && selectedDate) {
-                          setErrors((prev) => ({ ...prev, date: "" }));
-                        }
-                      }}
-                      disabled={(date) =>
-                        date.getTime() < Date.now() - 24 * 60 * 60 * 1000
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                {errors.date && (
-                  <p className="text-sm text-red-600">{errors.date}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  placeholder="Enter event location"
-                  value={formData.location}
-                  onChange={(e) =>
-                    handleInputChange("location", e.target.value)
-                  }
-                  className={`rounded-md ${
-                    errors.location ? "border-red-500" : ""
-                  }`}
                 />
-                {errors.location && (
-                  <p className="text-sm text-red-600">{errors.location}</p>
-                )}
-              </div>
 
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) =>
-                    handleInputChange("category", value)
-                  }
-                >
-                  <SelectTrigger
-                    className={`w-full rounded-md ${
-                      errors.category ? "border-red-500" : ""
-                    }`}
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe your event in detail"
+                          rows={4}
+                          maxLength={500}
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <FormMessage />
+                        <span className="ml-auto">
+                          {field.value?.length || 0}/500
+                        </span>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Event Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date.getTime() < Date.now() - 24 * 60 * 60 * 1000
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter event location" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select event category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Conference">Conference</SelectItem>
+                          <SelectItem value="Workshop">Workshop</SelectItem>
+                          <SelectItem value="Meetup">Meetup</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="maxAttendees"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Maximum Attendees</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="1"
+                          placeholder="Enter maximum number of attendees"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex gap-4 pt-4">
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={loading}
+                    className="w-full"
                   >
-                    <SelectValue placeholder="Select event category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Conference">Conference</SelectItem>
-                    <SelectItem value="Workshop">Workshop</SelectItem>
-                    <SelectItem value="Meetup">Meetup</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.category && (
-                  <p className="text-sm text-red-600">{errors.category}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="maxAttendees">Maximum Attendees</Label>
-                <Input
-                  id="maxAttendees"
-                  type="number"
-                  min="1"
-                  placeholder="Enter maximum number of attendees"
-                  value={formData.maxAttendees}
-                  onChange={(e) =>
-                    handleInputChange("maxAttendees", e.target.value)
-                  }
-                  className={`rounded-md ${
-                    errors.maxAttendees ? "border-red-500" : ""
-                  }`}
-                />
-                {errors.maxAttendees && (
-                  <p className="text-sm text-red-600">{errors.maxAttendees}</p>
-                )}
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  size="lg"
-                  disabled={loading}
-                  className="w-full"
-                >
-                  <Save className="mr-2 h-4 w-4" />
-                  {loading
-                    ? "Saving..."
-                    : isEditMode
-                    ? "Update Event"
-                    : "Create Event"}
-                </Button>
-              </div>
-            </form>
+                    <Save className="mr-2 h-4 w-4" />
+                    {loading
+                      ? "Saving..."
+                      : isEditMode
+                      ? "Update Event"
+                      : "Create Event"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </CardContent>
         </Card>
       </div>
