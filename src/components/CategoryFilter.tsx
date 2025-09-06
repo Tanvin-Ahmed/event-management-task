@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { Button } from "@/components/ui/button";
 
 interface CategoryFilterProps {
   selectedCategory: string;
@@ -16,7 +16,7 @@ export default function CategoryFilter({
       {categories.map((category) => (
         <Button
           key={category}
-          type={selectedCategory === category ? "primary" : "default"}
+          variant={selectedCategory === category ? "default" : "outline"}
           onClick={() => onCategoryChange(category)}
           className="rounded-full"
         >

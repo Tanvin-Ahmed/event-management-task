@@ -1,5 +1,5 @@
-import { Input } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 interface SearchBarProps {
   value: string;
@@ -13,13 +13,14 @@ export default function SearchBar({
   placeholder = "Search events...",
 }: SearchBarProps) {
   return (
-    <Input
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      prefix={<SearchOutlined />}
-      size="large"
-      className="rounded-lg"
-    />
+    <div className="relative">
+      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+      <Input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="pl-10 rounded-lg"
+      />
+    </div>
   );
 }

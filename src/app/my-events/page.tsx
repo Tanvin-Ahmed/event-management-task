@@ -1,7 +1,7 @@
 "use client";
 
-import { Button, message } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/shared/ProtectedRoute";
@@ -9,6 +9,7 @@ import EventCard from "@/components/EventCard";
 import { useEffect, useState, useCallback } from "react";
 import { Event, ApiResponse } from "@/types";
 import axios from "axios";
+import { toast } from "sonner";
 
 function MyEventsContent() {
   const router = useRouter();
@@ -31,11 +32,11 @@ function MyEventsContent() {
       if (result.success) {
         setMyEvents(result.data);
       } else {
-        message.error(result.message);
+        toast.error(result.message);
       }
     } catch (error) {
       console.error("Error fetching my events:", error);
-      message.error("Failed to fetch events");
+      toast.error("Failed to fetch events");
     } finally {
       setLoading(false);
     }
@@ -56,13 +57,13 @@ function MyEventsContent() {
 
       if (result.success) {
         setMyEvents((prev) => prev.filter((event) => event.id !== eventId));
-        message.success("Event deleted successfully!");
+        toast.success("Event deleted successfully!");
       } else {
-        message.error(result.message);
+        toast.error(result.message);
       }
     } catch (error) {
       console.error("Error deleting event:", error);
-      message.error("Failed to delete event");
+      toast.error("Failed to delete event");
     }
   };
 
@@ -96,12 +97,11 @@ function MyEventsContent() {
             </p>
           </div>
           <Button
-            type="primary"
-            size="large"
-            icon={<PlusOutlined />}
+            size="lg"
             onClick={handleCreateEvent}
-            className="bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
           >
+            <Plus className="mr-2 h-4 w-4" />
             Create New Event
           </Button>
         </div>
@@ -116,12 +116,11 @@ function MyEventsContent() {
                 Start by creating your first event to share with others.
               </p>
               <Button
-                type="primary"
-                size="large"
-                icon={<PlusOutlined />}
+                size="lg"
                 onClick={handleCreateEvent}
-                className="bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
+                <Plus className="mr-2 h-4 w-4" />
                 Create Your First Event
               </Button>
             </div>

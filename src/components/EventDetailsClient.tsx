@@ -4,12 +4,7 @@ import { Event } from "@/types";
 import { formatDate } from "@/utils/formatDate";
 import Link from "next/link";
 import { useState } from "react";
-import {
-  UserOutlined,
-  CalendarOutlined,
-  EnvironmentOutlined,
-  ArrowLeftOutlined,
-} from "@ant-design/icons";
+import { User, Calendar, MapPin, ArrowLeft } from "lucide-react";
 import RsvpButton from "@/components/RsvpButton";
 
 interface EventDetailsClientProps {
@@ -47,7 +42,7 @@ export default function EventDetailsClient({
           href="/"
           className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-6 text-sm font-medium"
         >
-          <ArrowLeftOutlined className="mr-2" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Events
         </Link>
 
@@ -76,7 +71,7 @@ export default function EventDetailsClient({
             {/* Event Info Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                <CalendarOutlined className="text-blue-500 text-lg" />
+                <Calendar className="text-blue-500 h-5 w-5" />
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     Date
@@ -88,7 +83,7 @@ export default function EventDetailsClient({
               </div>
 
               <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                <EnvironmentOutlined className="text-green-500 text-lg" />
+                <MapPin className="text-green-500 h-5 w-5" />
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     Location
@@ -100,7 +95,7 @@ export default function EventDetailsClient({
               </div>
 
               <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                <UserOutlined className="text-purple-500 text-lg" />
+                <User className="text-purple-500 h-5 w-5" />
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     Attendees
@@ -146,7 +141,6 @@ export default function EventDetailsClient({
                 </div>
                 <div className="flex-shrink-0">
                   <RsvpButton
-                    key={`rsvp-details-${event.id}-${event.attendeeCount}`}
                     event={event}
                     userId={userId}
                     onRsvpUpdate={handleRsvpUpdate}

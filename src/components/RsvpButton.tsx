@@ -1,15 +1,15 @@
 import { Event } from "@/types";
 import { useRsvp } from "@/hooks/useRsvp";
-import { Button } from "antd";
-import { UserAddOutlined, UserDeleteOutlined } from "@ant-design/icons";
-import { message } from "antd";
+import { Button } from "@/components/ui/button";
+import { UserPlus, UserMinus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { useEffect, useState } from "react";
 
 interface RsvpButtonProps {
   event: Event;
   userId: string;
   onRsvpUpdate?: (updatedEvent: Event) => void;
-  size?: "small" | "middle" | "large";
+  size?: "sm" | "default" | "lg";
   className?: string;
 }
 
@@ -17,7 +17,7 @@ export default function RsvpButton({
   event,
   userId,
   onRsvpUpdate,
-  size = "middle",
+  size = "default",
   className = "",
 }: RsvpButtonProps) {
   const { rsvpToEvent, loading, error } = useRsvp();
@@ -26,7 +26,7 @@ export default function RsvpButton({
 
   useEffect(() => {
     if (error) {
-      message.error(error);
+      toast.error(error);
     }
   }, [error]);
 
@@ -41,9 +41,9 @@ export default function RsvpButton({
         onRsvpUpdate?.(updatedEvent);
 
         if (action === "rsvp") {
-          message.success("Successfully RSVPed to the event!");
+          toast.success("Successfully RSVPed to the event!");
         } else {
-          message.success("Successfully cancelled RSVP!");
+          toast.success("Successfully cancelled RSVP!");
         }
       }
     } catch (err) {
@@ -59,17 +59,23 @@ export default function RsvpButton({
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       <Button
-        type={hasRsvped ? "default" : "primary"}
-        danger={hasRsvped}
+        variant={hasRsvped ? "outline" : "default"}
         size={size}
-        icon={hasRsvped ? <UserDeleteOutlined /> : <UserAddOutlined />}
         onClick={handleRsvp}
-        loading={loading}
-        disabled={!hasRsvped && isAtCapacity}
+        disabled={loading || (!hasRsvped && isAtCapacity)}
         className={
-          hasRsvped ? "border-red-500 text-red-500 hover:bg-red-50" : ""
+          hasRsvped
+            ? "border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600"
+            : ""
         }
       >
+        {loading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : hasRsvped ? (
+          <UserMinus className="mr-2 h-4 w-4" />
+        ) : (
+          <UserPlus className="mr-2 h-4 w-4" />
+        )}
         {hasRsvped ? "Cancel RSVP" : "RSVP"}
       </Button>
     </div>

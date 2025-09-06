@@ -1,13 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { Drawer, Button, Dropdown, Avatar } from "antd";
-import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import Image from "next/image";
-import { IoMdMenu } from "react-icons/io";
+import { User, LogOut, Menu } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const navLinks = [
@@ -25,24 +39,6 @@ const Header = () => {
     logout();
     router.push("/");
   };
-
-  const userMenuItems = [
-    {
-      key: "profile",
-      icon: <UserOutlined />,
-      label: user?.name || user?.email,
-      disabled: true,
-    },
-    {
-      type: "divider" as const,
-    },
-    {
-      key: "logout",
-      icon: <LogoutOutlined />,
-      label: "Sign Out",
-      onClick: handleLogout,
-    },
-  ];
 
   return (
     <header className="flex items-center justify-between px-6 h-12 w-full bg-white shadow">
@@ -77,86 +73,100 @@ const Header = () => {
       <div className="flex items-center gap-4">
         <div className="hidden md:flex items-center">
           {user ? (
-            <Dropdown
-              menu={{ items: userMenuItems }}
-              placement="bottomRight"
-              trigger={["click"]}
-            >
-              <Button type="text" className="flex items-center gap-2 h-10 px-3">
-                <Avatar size="small" icon={<UserOutlined />} />
-                <span className="text-sm font-medium">{user.name}</span>
-              </Button>
-            </Dropdown>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-2 h-10 px-3"
+                >
+                  <Avatar className="h-6 w-6">
+                    <AvatarFallback>
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium">{user.name}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem disabled>
+                  <User className="mr-2 h-4 w-4" />
+                  {user?.name || user?.email}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Link href="/sign-in">
-              <Button type="primary" size="small">
-                Sign In
-              </Button>
+              <Button size="sm">Sign In</Button>
             </Link>
           )}
         </div>
 
         <div className="md:hidden flex items-center">
-          <Button
-            type="text"
-            icon={<IoMdMenu size={25} />}
-            onClick={() => setOpen(true)}
-          />
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col gap-4 mt-4">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`text-sm transition-colors font-medium px-2 py-1 rounded ${
+                      pathname === link.href
+                        ? "text-blue-600 bg-blue-50"
+                        : "text-gray-700 hover:text-blue-600"
+                    }`}
+                    onClick={() => setOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  {user ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 px-2 py-1">
+                        <Avatar className="h-6 w-6">
+                          <AvatarFallback>
+                            <User className="h-4 w-4" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm font-medium">{user.name}</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          handleLogout();
+                          setOpen(false);
+                        }}
+                        className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sign Out
+                      </Button>
+                    </div>
+                  ) : (
+                    <Link href="/sign-in" onClick={() => setOpen(false)}>
+                      <Button className="w-full">Sign In</Button>
+                    </Link>
+                  )}
+                </div>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
-
-      <Drawer
-        title="Menu"
-        placement="right"
-        onClose={() => setOpen(false)}
-        open={open}
-      >
-        <nav className="flex flex-col gap-4 mt-4">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-sm transition-colors font-medium px-2 py-1 rounded ${
-                pathname === link.href
-                  ? "text-blue-600 bg-blue-50"
-                  : "text-gray-700 hover:text-blue-600"
-              }`}
-              onClick={() => setOpen(false)}
-            >
-              {link.label}
-            </Link>
-          ))}
-
-          <div className="mt-6 pt-4 border-t border-gray-200">
-            {user ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 px-2 py-1">
-                  <Avatar size="small" icon={<UserOutlined />} />
-                  <span className="text-sm font-medium">{user.name}</span>
-                </div>
-                <Button
-                  type="text"
-                  danger
-                  icon={<LogoutOutlined />}
-                  onClick={() => {
-                    handleLogout();
-                    setOpen(false);
-                  }}
-                  className="w-full text-left justify-start"
-                >
-                  Sign Out
-                </Button>
-              </div>
-            ) : (
-              <Link href="/sign-in" onClick={() => setOpen(false)}>
-                <Button type="primary" block>
-                  Sign In
-                </Button>
-              </Link>
-            )}
-          </div>
-        </nav>
-      </Drawer>
     </header>
   );
 };

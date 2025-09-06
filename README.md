@@ -24,7 +24,7 @@ A modern event management application built with Next.js 15, TypeScript, and Tai
 - **React 19** - UI library
 - **TypeScript** - Type-safe JavaScript
 - **Tailwind CSS 4** - Utility-first CSS framework
-- **Ant Design (antd)** - UI component library
+- **Shadcn UI** - UI component library
 
 ### State Management & HTTP
 
@@ -35,14 +35,10 @@ A modern event management application built with Next.js 15, TypeScript, and Tai
 ### Development Tools
 
 - **ESLint** - Code linting
-- **PostCSS** - CSS processing
-- **Day.js** - Date manipulation library
-- **React Icons** - Icon library
 
 ### Additional Libraries
 
-- **React Icons** - For consistent iconography
-- **Day.js** - Lightweight date formatting
+- **Lucid Icons** - For consistent iconography
 
 ## 🎯 How to Use the Application
 

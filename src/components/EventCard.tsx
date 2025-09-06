@@ -1,17 +1,8 @@
 import { Event } from "@/types";
 import { formatDate } from "@/utils/formatDate";
-
-import {
-  EditOutlined,
-  DeleteOutlined,
-  UserOutlined,
-  EyeOutlined,
-} from "@ant-design/icons";
-
-import { Button } from "antd";
-
+import { Edit, Trash2, User, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-
 import RsvpButton from "./RsvpButton";
 
 interface EventCardProps {
@@ -79,7 +70,7 @@ export default function EventCard({
 
       <div className="flex items-center justify-between text-sm text-gray-600 mt-3 pt-3 border-t border-gray-100">
         <div className="flex items-center gap-1">
-          <UserOutlined />
+          <User className="h-4 w-4" />
           <span>
             {event.attendeeCount} attending
             {event.maxAttendees && ` / ${event.maxAttendees}`}
@@ -97,16 +88,16 @@ export default function EventCard({
               event={event}
               userId={userId}
               onRsvpUpdate={onRsvpUpdate}
-              size="small"
+              size="sm"
             />
           </div>
           <Button
-            type="default"
-            size="small"
-            icon={<EyeOutlined />}
+            variant="outline"
+            size="sm"
             onClick={handleViewDetails}
             className="flex-1"
           >
+            <Eye className="mr-2 h-4 w-4" />
             Details
           </Button>
         </div>
@@ -115,20 +106,18 @@ export default function EventCard({
       {showActions && (
         <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200 mt-4">
           <Button
-            type="primary"
-            size="small"
-            icon={<EditOutlined />}
+            size="sm"
             onClick={() => {
               onEdit?.(event.id);
             }}
-            className="flex-1 min-w-0 bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700"
+            className="flex-1 min-w-0 bg-blue-600 hover:bg-blue-700 text-white"
           >
+            <Edit className="mr-2 h-4 w-4" />
             Edit
           </Button>
           <Button
-            danger
-            size="small"
-            icon={<DeleteOutlined />}
+            variant="destructive"
+            size="sm"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -136,16 +125,17 @@ export default function EventCard({
             }}
             className="flex-1 min-w-0"
           >
+            <Trash2 className="mr-2 h-4 w-4" />
             Delete
           </Button>
           {showDetails && (
             <Button
-              type="default"
-              size="small"
-              icon={<EyeOutlined />}
+              variant="outline"
+              size="sm"
               onClick={handleViewDetails}
               className="flex-1 min-w-0"
             >
+              <Eye className="mr-2 h-4 w-4" />
               Details
             </Button>
           )}

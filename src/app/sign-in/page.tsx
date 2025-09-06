@@ -1,13 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Form, Input, Button, Card, message } from "antd";
-import { MailOutlined, LockOutlined } from "@ant-design/icons";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Mail, Lock } from "lucide-react";
+import { toast } from "sonner";
 
-export default function SignInPage() {
-  const [form] = Form.useForm();
+interface FormData {
+  email: string;
+  password: string;
+}
+
+function SignInContent() {
+  const [formData, setFormData] = useState<FormData>({
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState<Partial<FormData>>({});
   const [loading, setLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const router = useRouter();
@@ -21,23 +34,55 @@ export default function SignInPage() {
     }
   }, [isAuthenticated, router, redirectTo]);
 
-  const handleSubmit = async (values: { email: string; password: string }) => {
+  const validateForm = (): boolean => {
+    const newErrors: Partial<FormData> = {};
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Please enter your email";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Please enter your password";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const success = await login(values.email, values.password);
+      const success = await login(formData.email, formData.password);
 
       if (success) {
-        message.success("Successfully signed in!");
+        toast.success("Successfully signed in!");
         router.push(redirectTo);
       } else {
-        message.error("Invalid email or password");
+        toast.error("Invalid email or password");
       }
     } catch (error) {
       console.error("Login error:", error);
-      message.error("An error occurred during sign in");
+      toast.error("An error occurred during sign in");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
@@ -45,63 +90,79 @@ export default function SignInPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <Card className="shadow-lg">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Sign In</h1>
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+              Sign In
+            </CardTitle>
             <p className="text-gray-600">
               Access your event management dashboard
             </p>
-          </div>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    className={`pl-10 ${errors.email ? "border-red-500" : ""}`}
+                    autoComplete="email"
+                  />
+                </div>
+                {errors.email && (
+                  <p className="text-sm text-red-600">{errors.email}</p>
+                )}
+              </div>
 
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-            size="large"
-          >
-            <Form.Item
-              name="email"
-              label="Email"
-              rules={[
-                { required: true, message: "Please enter your email" },
-                { type: "email", message: "Please enter a valid email" },
-              ]}
-            >
-              <Input
-                prefix={<MailOutlined />}
-                placeholder="Enter your email"
-                autoComplete="email"
-              />
-            </Form.Item>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={(e) =>
+                      handleInputChange("password", e.target.value)
+                    }
+                    className={`pl-10 ${
+                      errors.password ? "border-red-500" : ""
+                    }`}
+                    autoComplete="current-password"
+                  />
+                </div>
+                {errors.password && (
+                  <p className="text-sm text-red-600">{errors.password}</p>
+                )}
+              </div>
 
-            <Form.Item
-              name="password"
-              label="Password"
-              rules={[
-                { required: true, message: "Please enter your password" },
-                { min: 6, message: "Password must be at least 6 characters" },
-              ]}
-            >
-              <Input.Password
-                prefix={<LockOutlined />}
-                placeholder="Enter your password"
-                autoComplete="current-password"
-              />
-            </Form.Item>
-
-            <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={loading}
-                block
-                className="h-12"
-              >
+              <Button type="submit" disabled={loading} className="w-full h-12">
                 {loading ? "Signing in..." : "Sign In"}
               </Button>
-            </Form.Item>
-          </Form>
+            </form>
+          </CardContent>
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div>Loading...</div>
+        </div>
+      }
+    >
+      <SignInContent />
+    </Suspense>
   );
 }
