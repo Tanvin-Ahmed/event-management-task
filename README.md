@@ -200,8 +200,6 @@ POST /api/events
 }
 ```
 
-**Required Fields:** `title`, `description`, `date`, `location`
-
 **Response:**
 
 ```json
