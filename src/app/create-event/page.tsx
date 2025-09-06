@@ -370,7 +370,7 @@ function CreateEventContent() {
                   }
                 >
                   <SelectTrigger
-                    className={`rounded-md ${
+                    className={`w-full rounded-md ${
                       errors.category ? "border-red-500" : ""
                     }`}
                   >
@@ -422,7 +422,7 @@ function CreateEventContent() {
                   type="submit"
                   size="lg"
                   disabled={loading}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="flex-1"
                 >
                   <Save className="mr-2 h-4 w-4" />
                   {loading

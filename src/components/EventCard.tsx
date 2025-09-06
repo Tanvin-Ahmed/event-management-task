@@ -110,7 +110,7 @@ export default function EventCard({
             onClick={() => {
               onEdit?.(event.id);
             }}
-            className="flex-1 min-w-0 bg-blue-600 hover:bg-blue-700 text-white"
+            className="flex-1 min-w-0"
           >
             <Edit className="mr-2 h-4 w-4" />
             Edit

@@ -6,6 +6,7 @@ import { Event, ApiResponse } from "@/types";
 import EventCard from "./EventCard";
 import SearchBar from "./SearchBar";
 import CategoryFilter from "./CategoryFilter";
+import { Button } from "@/components/ui/button";
 
 export default function EventList() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -63,12 +64,7 @@ export default function EventList() {
     return (
       <div className="text-center py-12">
         <div className="text-red-600 text-lg mb-4">❌ {error}</div>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Try Again
-        </button>
+        <Button onClick={() => window.location.reload()}>Try Again</Button>
       </div>
     );
   }

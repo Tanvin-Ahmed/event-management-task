@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/shared/ProtectedRoute";
 import EventCard from "@/components/EventCard";
+import DeleteEventModal from "@/components/DeleteEventModal";
 import { useEffect, useState, useCallback } from "react";
 import { Event, ApiResponse } from "@/types";
 import axios from "axios";
@@ -16,6 +17,15 @@ function MyEventsContent() {
   const { user } = useAuth();
   const [myEvents, setMyEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    event: Event | null;
+    isDeleting: boolean;
+  }>({
+    isOpen: false,
+    event: null,
+    isDeleting: false,
+  });
 
   const userId = user?.id;
 
@@ -49,21 +59,47 @@ function MyEventsContent() {
   }, [userId, fetchMyEvents]);
 
   const handleDeleteEvent = async (eventId: string) => {
+    const eventToDelete = myEvents.find((event) => event.id === eventId);
+    if (eventToDelete) {
+      setDeleteModal({
+        isOpen: true,
+        event: eventToDelete,
+        isDeleting: false,
+      });
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.event) return;
+
+    setDeleteModal((prev) => ({ ...prev, isDeleting: true }));
+
     try {
       const response = await axios.delete<ApiResponse<Event>>(
-        `/api/events/${eventId}`
+        `/api/events/${deleteModal.event.id}`
       );
       const result = response.data;
 
       if (result.success) {
-        setMyEvents((prev) => prev.filter((event) => event.id !== eventId));
+        setMyEvents((prev) =>
+          prev.filter((event) => event.id !== deleteModal.event!.id)
+        );
         toast.success("Event deleted successfully!");
+        setDeleteModal({ isOpen: false, event: null, isDeleting: false });
       } else {
         toast.error(result.message);
+        setDeleteModal((prev) => ({ ...prev, isDeleting: false }));
       }
     } catch (error) {
       console.error("Error deleting event:", error);
       toast.error("Failed to delete event");
+      setDeleteModal((prev) => ({ ...prev, isDeleting: false }));
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    if (!deleteModal.isDeleting) {
+      setDeleteModal({ isOpen: false, event: null, isDeleting: false });
     }
   };
 
@@ -96,11 +132,7 @@ function MyEventsContent() {
               Manage your created events ({myEvents.length} events)
             </p>
           </div>
-          <Button
-            size="lg"
-            onClick={handleCreateEvent}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
+          <Button size="lg" onClick={handleCreateEvent}>
             <Plus className="mr-2 h-4 w-4" />
             Create New Event
           </Button>
@@ -115,11 +147,7 @@ function MyEventsContent() {
               <p className="text-gray-600 mb-6">
                 Start by creating your first event to share with others.
               </p>
-              <Button
-                size="lg"
-                onClick={handleCreateEvent}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
+              <Button size="lg" onClick={handleCreateEvent}>
                 <Plus className="mr-2 h-4 w-4" />
                 Create Your First Event
               </Button>
@@ -140,6 +168,14 @@ function MyEventsContent() {
           </div>
         )}
       </div>
+
+      <DeleteEventModal
+        isOpen={deleteModal.isOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        event={deleteModal.event}
+        isDeleting={deleteModal.isDeleting}
+      />
     </div>
   );
 }
